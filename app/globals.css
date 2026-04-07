@@ -1,0 +1,401 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────────────────────
+   CSS CUSTOM PROPERTIES — TaxMad VTC / OLED Premium
+   ───────────────────────────────────────────────────────── */
+:root {
+  /* Colores base */
+  --oled:         #000000;
+  --card:         #111827;
+  --surface:      #1F2937;
+  --border:       #374151;
+
+  /* Acento */
+  --accent:       #00B5FF;
+  --accent-dim:   #0090CC;
+  --accent-glow:  rgba(0, 181, 255, 0.20);
+
+  /* Texto */
+  --text-main:    #FFFFFF;
+  --text-dim:     #9CA3AF;
+  --text-muted:   #4B5563;
+
+  /* Semánticos */
+  --success:      #10B981;
+  --success-glow: rgba(16, 185, 129, 0.20);
+  --danger:       #EF4444;
+  --danger-glow:  rgba(239, 68, 68, 0.20);
+  --warning:      #F59E0B;
+  --gold:         #C8972E;
+  --gold-light:   #E8B84B;
+
+  /* Layout */
+  --nav-height:   64px;
+  --header-h:     60px;
+  --radius-card:  1.5rem;
+  --radius-input: 0.875rem;
+  --radius-btn:   0.875rem;
+}
+
+/* ─────────────────────────────────────────────────────────
+   BASE RESET & BODY
+   ───────────────────────────────────────────────────────── */
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--oled);
+    color: var(--text-main);
+    font-family: var(--font-geist-sans), system-ui, sans-serif;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    /* Padding para la Bottom Navigation Bar */
+    padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom));
+  }
+
+  /* Scrollbar — invisible pero funcional */
+  ::-webkit-scrollbar         { width: 0; background: transparent; }
+  ::-webkit-scrollbar-thumb   { background: transparent; }
+
+  /* Selección de texto */
+  ::selection {
+    background-color: var(--accent);
+    color: var(--oled);
+  }
+
+  /* Inputs: eliminar estilos del sistema */
+  input, textarea, select {
+    background-color: transparent;
+    color: inherit;
+    font-family: inherit;
+  }
+
+  /* Eliminar autocompletar amarillo en Chrome */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px var(--surface) inset;
+    -webkit-text-fill-color: var(--text-main);
+    caret-color: var(--accent);
+  }
+
+  /* Focus global visible y accesible */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  button:focus:not(:focus-visible) { outline: none; }
+}
+
+/* ─────────────────────────────────────────────────────────
+   COMPONENTES REUTILIZABLES (@layer components)
+   ───────────────────────────────────────────────────────── */
+@layer components {
+
+  /* ── Tarjeta principal ── */
+  .vtc-card {
+    @apply bg-card rounded-3xl border border-border/50 shadow-card;
+    background: linear-gradient(145deg, #1F2937 0%, #111827 100%);
+  }
+
+  .vtc-card-hover {
+    @apply vtc-card transition-all duration-200;
+  }
+  .vtc-card-hover:hover {
+    @apply shadow-card-hover;
+  }
+
+  /* ── Inputs OLED ── */
+  .vtc-input {
+    @apply w-full px-4 py-3.5 rounded-xl
+           bg-surface border border-border
+           text-text-main text-sm placeholder:text-text-muted
+           transition-all duration-200 outline-none;
+  }
+  .vtc-input:focus {
+    @apply border-accent bg-surface;
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+  .vtc-input.error {
+    @apply border-danger;
+    box-shadow: 0 0 0 3px var(--danger-glow);
+  }
+
+  /* ── Botón acento (Azul eléctrico) ── */
+  .vtc-btn {
+    @apply flex items-center justify-center gap-2
+           w-full py-4 px-6 rounded-2xl
+           font-bold text-sm tracking-widest uppercase
+           transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .vtc-btn-accent {
+    @apply vtc-btn text-oled;
+    background: linear-gradient(135deg, #00B5FF 0%, #0077CC 100%);
+    box-shadow: 0 4px 20px rgba(0, 181, 255, 0.35);
+  }
+  .vtc-btn-accent:hover:not(:disabled) {
+    box-shadow: 0 6px 28px rgba(0, 181, 255, 0.55);
+    filter: brightness(1.08);
+  }
+
+  /* ── Botón éxito (Verde) ── */
+  .vtc-btn-success {
+    @apply vtc-btn text-white;
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.35);
+  }
+
+  /* ── Botón peligro (Rojo) ── */
+  .vtc-btn-danger {
+    @apply vtc-btn;
+    color: var(--danger);
+    background: transparent;
+    border: 1px solid transparent;
+  }
+  .vtc-btn-danger:hover:not(:disabled) {
+    background: var(--danger-glow);
+    border-color: var(--danger);
+  }
+
+  /* ── Botón Gold (Login) ── */
+  .vtc-btn-gold {
+    @apply vtc-btn text-oled font-black;
+    background: linear-gradient(135deg, #E8B84B 0%, #A67C20 100%);
+    box-shadow: 0 4px 20px rgba(200, 151, 46, 0.40);
+    letter-spacing: 0.15em;
+  }
+
+  /* ── Etiqueta de sección ── */
+  .vtc-label {
+    @apply block text-2xs font-bold tracking-widest uppercase text-text-dim mb-1.5;
+  }
+
+  /* ── Badge de estado ── */
+  .vtc-badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-2xs font-bold tracking-wider uppercase;
+  }
+  .vtc-badge-accent  { @apply vtc-badge bg-accent/15 text-accent border border-accent/30; }
+  .vtc-badge-success { @apply vtc-badge bg-success/15 text-success border border-success/30; }
+  .vtc-badge-danger  { @apply vtc-badge bg-danger/15 text-danger border border-danger/30; }
+  .vtc-badge-gold    { @apply vtc-badge border border-gold/30; color: var(--gold-light); background: rgba(200,151,46,0.12); }
+
+  /* ── Dirección copiable (con icono clipboard) ── */
+  .vtc-address-field {
+    @apply vtc-card p-4 cursor-pointer select-none
+           transition-all duration-150 active:scale-[0.98];
+  }
+  .vtc-address-field:hover {
+    @apply border-accent/30;
+    background: linear-gradient(145deg, #243044 0%, #1a2535 100%);
+  }
+
+  /* ── Precio grande ── */
+  .vtc-price {
+    @apply font-black tracking-tight text-text-main;
+    font-size: clamp(2rem, 8vw, 3rem);
+    line-height: 1;
+  }
+
+  /* ── Textarea de incidencia ── */
+  .vtc-textarea {
+    @apply vtc-input resize-none;
+    min-height: 80px;
+    padding-right: 3.5rem; /* espacio para el icono de micrófono */
+  }
+
+  /* ── Separador ── */
+  .vtc-divider {
+    @apply h-px bg-border/60 my-4;
+  }
+
+  /* ── Skeleton loader ── */
+  .vtc-skeleton {
+    @apply rounded-xl bg-surface;
+    background: linear-gradient(
+      90deg,
+      var(--surface) 0%,
+      rgba(255,255,255,0.05) 50%,
+      var(--surface) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.6s linear infinite;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────
+   BOTTOM NAVIGATION BAR
+   ───────────────────────────────────────────────────────── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--nav-height);
+  padding-bottom: env(safe-area-inset-bottom);
+  background: rgba(17, 24, 39, 0.92);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-top: 1px solid rgba(55, 65, 81, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  z-index: 100;
+}
+
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--text-muted);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  min-width: 64px;
+}
+.bottom-nav-item:hover {
+  color: var(--text-dim);
+}
+.bottom-nav-item.active {
+  color: var(--accent);
+}
+.bottom-nav-item .nav-icon {
+  font-size: 22px;
+  line-height: 1;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.bottom-nav-item.active .nav-icon {
+  transform: translateY(-2px);
+}
+.bottom-nav-item .nav-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Indicador activo (punto) */
+.bottom-nav-item.active::after {
+  content: '';
+  display: block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+  position: absolute;
+  bottom: calc(env(safe-area-inset-bottom) + 6px);
+}
+
+/* ─────────────────────────────────────────────────────────
+   MICRÓFONO FLOTANTE (Voice Input)
+   ───────────────────────────────────────────────────────── */
+.mic-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--accent-glow);
+  border: 1px solid rgba(0, 181, 255, 0.3);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 5;
+}
+.mic-btn:hover {
+  background: var(--accent-glow);
+  box-shadow: 0 0 16px var(--accent-glow);
+  transform: translateY(-50%) scale(1.05);
+}
+.mic-btn.recording {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: var(--danger);
+  animation: pulseGlow 1s ease-in-out infinite;
+}
+
+/* ─────────────────────────────────────────────────────────
+   ANIMACIONES ADICIONALES
+   ───────────────────────────────────────────────────────── */
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 8px rgba(0,181,255,0.3); }
+  50%       { box-shadow: 0 0 20px rgba(0,181,255,0.7); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes successBounce {
+  0%   { transform: scale(0.8); opacity: 0; }
+  60%  { transform: scale(1.1); }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
+/* ─────────────────────────────────────────────────────────
+   UTILIDADES (@layer utilities)
+   ───────────────────────────────────────────────────────── */
+@layer utilities {
+  .animate-slide-up    { animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) both; }
+  .animate-fade-in     { animation: fadeIn 0.3s ease both; }
+  .animate-pulse-glow  { animation: pulseGlow 2s ease-in-out infinite; }
+  .animate-success     { animation: successBounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; }
+
+  /* Stagger delays para listas */
+  .delay-75  { animation-delay: 75ms; }
+  .delay-150 { animation-delay: 150ms; }
+  .delay-225 { animation-delay: 225ms; }
+  .delay-300 { animation-delay: 300ms; }
+
+  /* Prevenir scroll horizontal */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Texto con gradiente accent */
+  .text-gradient-accent {
+    background: linear-gradient(135deg, #00B5FF, #7C3AED);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Glassmorphism para modales */
+  .glass {
+    background: rgba(17, 24, 39, 0.8);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+  }
+
+  /* Glow rings en focus (botones importantes) */
+  .ring-accent { box-shadow: 0 0 0 3px rgba(0,181,255,0.35); }
+  .ring-success { box-shadow: 0 0 0 3px rgba(16,185,129,0.35); }
+  .ring-danger  { box-shadow: 0 0 0 3px rgba(239,68,68,0.35); }
+}
