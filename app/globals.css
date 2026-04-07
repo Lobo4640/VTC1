@@ -1,0 +1,357 @@
+/* ================================================================
+   globals.css — VTC Madrid 2026
+   Animaciones y estilos base del diseño original (5.html)
+   Paleta: Dark #071528 · Blue #00B5FF · Violet #7A5FFF
+================================================================ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── CSS CUSTOM PROPERTIES ──────────────────────────────────── */
+:root {
+  --blue:    #00B5FF;
+  --dark:    #071528;
+  --navy:    #112F5C;
+  --violet:  #7A5FFF;
+  --green:   #22c78b;
+  --orange:  #FF8C42;
+  --red:     #ff4d4d;
+  --muted:   #8898aa;
+  --border:  #1a2f4a;
+  --surface: #0d1f36;
+}
+
+/* ── RESET BASE ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: "Montserrat", system-ui, sans-serif;
+  background: var(--dark);
+  color: #fff;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* ── SELECCIÓN DE TEXTO ─────────────────────────────────────── */
+::selection {
+  background: rgba(0, 181, 255, 0.3);
+  color: #fff;
+}
+
+/* ── SCROLLBAR PERSONALIZADA ────────────────────────────────── */
+::-webkit-scrollbar               { width: 6px; }
+::-webkit-scrollbar-track         { background: var(--dark); }
+::-webkit-scrollbar-thumb         { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover   { background: var(--blue); }
+
+/* ── INPUT FECHA — ICONO OSCURO ─────────────────────────────── */
+input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.5) brightness(1.5);
+  cursor: pointer;
+}
+input[type="datetime-local"],
+input[type="date"],
+input[type="number"],
+select { color-scheme: dark; }
+
+/* ================================================================
+   ANIMACIONES NEÓN (heredadas de 5.html)
+================================================================ */
+
+/* -- Pulso neón continuo -- */
+@keyframes neonPulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(0,181,255,0.3), 0 0 20px rgba(0,181,255,0.1); }
+  50%       { box-shadow: 0 0 20px rgba(0,181,255,0.6), 0 0 40px rgba(0,181,255,0.3); }
+}
+.neon-pulse { animation: neonPulse 2.5s ease-in-out infinite; }
+
+/* -- Bordes neón violeta -- */
+@keyframes neonPulseViolet {
+  0%, 100% { box-shadow: 0 0 10px rgba(122,95,255,0.3); }
+  50%       { box-shadow: 0 0 25px rgba(122,95,255,0.7), 0 0 50px rgba(122,95,255,0.3); }
+}
+.neon-violet { animation: neonPulseViolet 2.5s ease-in-out infinite; }
+
+/* -- Slide up con rebote -- */
+@keyframes slideUp {
+  from { transform: translateY(40px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+.slide-up { animation: slideUp 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+
+/* -- Fade in -- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-in { animation: fadeIn 0.35s ease-out forwards; }
+
+/* -- Pop scale -- */
+@keyframes pop {
+  0%   { transform: scale(0.7);  opacity: 0; }
+  70%  { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+.pop { animation: pop 0.45s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+
+/* -- Spin (loader) -- */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.spin { animation: spin 0.8s linear infinite; }
+
+/* -- Gradiente animado (botones, hero) -- */
+@keyframes gradientShift {
+  0%, 100% { background-position: 0%   50%; }
+  50%       { background-position: 100% 50%; }
+}
+.gradient-animate {
+  background-size: 200% 200%;
+  animation: gradientShift 5s ease infinite;
+}
+
+/* -- Shimmer (carga) -- */
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position:  200% 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(0,181,255,0.12) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s linear infinite;
+}
+
+/* -- Parpadeo neón texto -- */
+@keyframes textGlow {
+  0%, 100% { text-shadow: 0 0 8px rgba(0,181,255,0.5); }
+  50%       { text-shadow: 0 0 20px rgba(0,181,255,0.9), 0 0 40px rgba(0,181,255,0.4); }
+}
+.text-glow { animation: textGlow 2.5s ease-in-out infinite; }
+
+/* -- Flote suave -- */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+.float { animation: float 4s ease-in-out infinite; }
+
+/* ================================================================
+   COMPONENTES REUTILIZABLES
+================================================================ */
+
+/* -- Tarjeta glass -- */
+.glass-card {
+  background: rgba(13, 31, 54, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 181, 255, 0.12);
+  border-radius: 1.25rem;
+  transition: all 0.3s ease;
+}
+.glass-card:hover {
+  border-color: rgba(0, 181, 255, 0.3);
+  box-shadow: 0 8px 40px rgba(0, 181, 255, 0.12);
+  transform: translateY(-2px);
+}
+
+/* -- Input oscuro estilo VTC -- */
+.vtc-input {
+  width: 100%;
+  padding: 13px 13px 13px 42px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  background: rgba(13, 31, 54, 0.9);
+  color: #fff;
+  font-size: 13px;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 600;
+  outline: none;
+  transition: all 0.2s;
+}
+.vtc-input::placeholder { color: var(--muted); }
+.vtc-input:focus {
+  border-color: var(--blue);
+  background: rgba(0, 181, 255, 0.05);
+  box-shadow: 0 0 0 3px rgba(0, 181, 255, 0.12);
+}
+.vtc-input.err {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(255, 77, 77, 0.12);
+}
+
+/* -- Input sin icono -- */
+.vtc-input-plain {
+  padding-left: 14px;
+}
+
+/* -- Botón primario neón -- */
+.btn-neon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 24px;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(135deg, #00B5FF, #0090cc);
+  color: #fff;
+  font-family: "Montserrat", sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 20px rgba(0, 181, 255, 0.25);
+}
+.btn-neon:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 181, 255, 0.4);
+}
+.btn-neon:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* -- Botón violeta -- */
+.btn-violet {
+  background: linear-gradient(135deg, #7A5FFF, #5c44cc);
+  box-shadow: 0 4px 20px rgba(122, 95, 255, 0.25);
+}
+.btn-violet:hover:not(:disabled) {
+  box-shadow: 0 8px 30px rgba(122, 95, 255, 0.4);
+}
+
+/* -- Botón dark -- */
+.btn-dark {
+  background: linear-gradient(135deg, #112F5C, #0d2449);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* -- Badge -- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+.badge-blue    { background: rgba(0,181,255,0.15);  color: #00B5FF; border: 1px solid rgba(0,181,255,0.25); }
+.badge-violet  { background: rgba(122,95,255,0.15); color: #7A5FFF; border: 1px solid rgba(122,95,255,0.25); }
+.badge-green   { background: rgba(34,199,139,0.15); color: #22c78b; border: 1px solid rgba(34,199,139,0.25); }
+.badge-orange  { background: rgba(255,140,66,0.15); color: #FF8C42; border: 1px solid rgba(255,140,66,0.25); }
+.badge-red     { background: rgba(255,77,77,0.15);  color: #ff4d4d; border: 1px solid rgba(255,77,77,0.25);  }
+
+/* -- Línea divisora -- */
+.divider-neon {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0,181,255,0.3), transparent);
+  margin: 24px 0;
+}
+
+/* -- Stepper dot -- */
+.step-dot {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800;
+  transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  z-index: 1;
+}
+.step-dot.inactive  { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.35); border: 2px solid rgba(255,255,255,0.12); }
+.step-dot.active    { background: var(--blue);   color: #fff; border: 2px solid var(--blue);  transform: scale(1.15); box-shadow: 0 0 12px rgba(0,181,255,0.5); }
+.step-dot.done      { background: var(--green);  color: #fff; border: 2px solid var(--green); }
+
+/* -- Toast -- */
+.vtc-toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(8px);
+  padding: 12px 22px;
+  border-radius: 25px;
+  font-family: "Montserrat", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  z-index: 9999;
+  pointer-events: none;
+  white-space: nowrap;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+.vtc-toast.show  { opacity: 1; transform: translateX(-50%) translateY(0); }
+.vtc-toast.info  { background: #112F5C; border: 1px solid rgba(0,181,255,0.3); }
+.vtc-toast.ok    { background: #0d4a32; border: 1px solid rgba(34,199,139,0.3); }
+.vtc-toast.err   { background: #4a0d0d; border: 1px solid rgba(255,77,77,0.3); }
+
+/* -- Prose (Blog / Markdown) -- */
+.prose-vtc {
+  color: rgba(255,255,255,0.85);
+  line-height: 1.8;
+  font-size: 15px;
+}
+.prose-vtc h1, .prose-vtc h2, .prose-vtc h3, .prose-vtc h4 {
+  color: #fff;
+  font-weight: 800;
+  margin: 1.5em 0 0.6em;
+  line-height: 1.3;
+}
+.prose-vtc h1 { font-size: 2rem; }
+.prose-vtc h2 { font-size: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4em; }
+.prose-vtc h3 { font-size: 1.25rem; color: var(--blue); }
+.prose-vtc p  { margin-bottom: 1.2em; }
+.prose-vtc a  { color: var(--blue); text-decoration: underline; text-underline-offset: 3px; }
+.prose-vtc a:hover { color: #fff; }
+.prose-vtc ul, .prose-vtc ol { padding-left: 1.5em; margin-bottom: 1.2em; }
+.prose-vtc li { margin-bottom: 0.4em; }
+.prose-vtc code {
+  background: rgba(0,181,255,0.1);
+  border: 1px solid rgba(0,181,255,0.2);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.875em;
+  font-family: "JetBrains Mono", monospace;
+  color: var(--blue);
+}
+.prose-vtc pre {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  overflow-x: auto;
+  margin-bottom: 1.2em;
+}
+.prose-vtc pre code { background: none; border: none; padding: 0; color: rgba(255,255,255,0.9); }
+.prose-vtc blockquote {
+  border-left: 3px solid var(--blue);
+  padding: 8px 16px;
+  margin: 1.2em 0;
+  background: rgba(0,181,255,0.05);
+  border-radius: 0 8px 8px 0;
+  color: rgba(255,255,255,0.7);
+  font-style: italic;
+}
+.prose-vtc img { border-radius: 10px; max-width: 100%; margin: 1.2em auto; display: block; }
+.prose-vtc hr { border: none; height: 1px; background: var(--border); margin: 2em 0; }
+.prose-vtc table { width: 100%; border-collapse: collapse; margin-bottom: 1.2em; font-size: 14px; }
+.prose-vtc th { background: var(--surface); color: #fff; padding: 8px 12px; text-align: left; font-weight: 700; border-bottom: 2px solid var(--border); }
+.prose-vtc td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: rgba(255,255,255,0.8); }
+.prose-vtc tr:hover td { background: rgba(0,181,255,0.04); }
+
+/* ── RESPONSIVE MEDIA ───────────────────────────────────────── */
+@media (max-width: 640px) {
+  .prose-vtc h1 { font-size: 1.6rem; }
+  .prose-vtc h2 { font-size: 1.3rem; }
+}
