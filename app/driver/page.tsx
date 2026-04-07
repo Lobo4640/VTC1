@@ -35,14 +35,14 @@ import {
   Calendar,
   Timer,
 } from "lucide-react";
-
-import { useVoiceInput } from "hooks/useVoiceInput";
-import { supabase }      from "@/lib/supabase";
+// POR ESTO (rutas relativas):
+import { useVoiceInput } from "../../hooks/useVoiceInput";
+import { supabase }      from "../../lib/supabase";
 import {
   determinarTarifa,
   calcularPrecioViaje,
   formatearPrecio,
-} from "@/lib/tarifas";
+} from "../../lib/tarifas";
 
 // ─────────────────────────────────────────────────────────
 // TIPOS
