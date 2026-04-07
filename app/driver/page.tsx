@@ -36,7 +36,7 @@ import {
   Timer,
 } from "lucide-react";
 
-import { useVoiceInput } from "../../hooks/useVoiceInput";
+import { useVoiceInput } from "hooks/useVoiceInput";
 import { supabase }      from "@/lib/supabase";
 import {
   determinarTarifa,
