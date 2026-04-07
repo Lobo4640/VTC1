@@ -2,7 +2,7 @@
  * app/api/hoja-ruta/[codigo]/route.js
  * ─────────────────────────────────────────────
  * GET → Devuelve el Contrato de Transporte en HTML completo
- *       Usa lib/hojaRuta.js como generador
+ *       Usa lib/hojaruta.js como generador
  *       Imprimible desde el navegador (Ctrl+P → Guardar como PDF)
  */
 
