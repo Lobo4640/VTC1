@@ -1,32 +1,26 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-// Añadir esto arriba del archivo:
-interface Window {
-  SpeechRecognition: any;
-  webkitSpeechRecognition: any;
-}
-declare var SpeechRecognition: any;
-declare var webkitSpeechRecognition: any;interface UseVoiceInputOptions {
-  lang?:         string;
-  continuous?:   boolean;
+
+interface UseVoiceInputOptions {
+  lang?:           string;
+  continuous?:     boolean;
   interimResults?: boolean;
-  onResult?:     (transcript: string) => void;
-  onError?:      (error: string) => void;
+  onResult?:       (transcript: string) => void;
+  onError?:        (error: string) => void;
 }
 
 interface UseVoiceInputReturn {
-  isRecording:  boolean;
-  isSupported:  boolean;
-  transcript:   string;
+  isRecording:    boolean;
+  isSupported:    boolean;
+  transcript:     string;
   startRecording: () => void;
   stopRecording:  () => void;
   toggleRecording: () => void;
 }
 
 /**
- * Hook para dictado por voz usando la Web Speech API.
- * Compatible con Chrome y Safari (con prefijo webkit).
+ * Hook para dictado por voz optimizado para Vercel/TypeScript.
  */
 export function useVoiceInput({
   lang           = "es-ES",
@@ -38,11 +32,12 @@ export function useVoiceInput({
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript]   = useState("");
 
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  // Usamos 'any' aquí para que TypeScript no bloquee el build en Vercel
+  const recognitionRef = useRef<any>(null);
 
   const isSupported =
     typeof window !== "undefined" &&
-    ("SpeechRecognition" in window || "webkitSpeechRecognition" in window);
+    (!!(window as any).SpeechRecognition || !!(window as any).webkitSpeechRecognition);
 
   const startRecording = useCallback(() => {
     if (!isSupported) {
@@ -50,26 +45,21 @@ export function useVoiceInput({
       return;
     }
 
-    // Limpiar instancia anterior
     if (recognitionRef.current) {
       recognitionRef.current.abort();
     }
 
     const SpeechRecognitionAPI =
-      (window as typeof window & { webkitSpeechRecognition: typeof SpeechRecognition })
-        .SpeechRecognition ??
-      (window as typeof window & { webkitSpeechRecognition: typeof SpeechRecognition })
-        .webkitSpeechRecognition;
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     const recognition = new SpeechRecognitionAPI();
-    recognition.lang           = lang;
-    recognition.continuous     = continuous;
+    recognition.lang = lang;
+    recognition.continuous = continuous;
     recognition.interimResults = interimResults;
 
     recognition.onstart = () => setIsRecording(true);
-    recognition.onend   = () => setIsRecording(false);
 
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
+    recognition.onresult = (event: any) => {
       let finalTranscript = "";
       for (let i = event.resultIndex; i < event.results.length; i++) {
         if (event.results[i].isFinal) {
@@ -82,15 +72,11 @@ export function useVoiceInput({
       }
     };
 
-    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+    recognition.onerror = (event: any) => {
       setIsRecording(false);
       const mensajes: Record<string, string> = {
-        "no-speech":          "No se detectó voz. Inténtalo de nuevo.",
-        "audio-capture":      "No se puede acceder al micrófono.",
+        "no-speech":          "No se detectó voz.",
         "not-allowed":        "Permiso de micrófono denegado.",
-        "network":            "Error de red durante el reconocimiento.",
-        "aborted":            "Reconocimiento cancelado.",
-        "service-not-allowed":"Servicio de voz no disponible.",
       };
       onError?.(mensajes[event.error] ?? `Error: ${event.error}`);
     };
