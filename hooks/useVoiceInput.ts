@@ -1,8 +1,13 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-
-interface UseVoiceInputOptions {
+// Añadir esto arriba del archivo:
+interface Window {
+  SpeechRecognition: any;
+  webkitSpeechRecognition: any;
+}
+declare var SpeechRecognition: any;
+declare var webkitSpeechRecognition: any;interface UseVoiceInputOptions {
   lang?:         string;
   continuous?:   boolean;
   interimResults?: boolean;
