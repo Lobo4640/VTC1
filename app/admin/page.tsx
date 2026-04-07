@@ -40,10 +40,9 @@ import {
   Search,
 } from "lucide-react";
 
-import { supabase } from "@/lib/supabase";
-import type { Viaje, ViajeEstado } from "@/types/database";
-import { formatearPrecio } from "@/lib/tarifas";
-
+import { supabase } from "../../lib/supabase";
+import type { Viaje, ViajeEstado } from "../../types/database";
+import { formatearPrecio } from "../../lib/tarifas";
 // ─────────────────────────────────────────────────────────
 // TIPOS LOCALES
 // ─────────────────────────────────────────────────────────
