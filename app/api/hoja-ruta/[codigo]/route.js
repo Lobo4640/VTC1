@@ -8,7 +8,7 @@
 
 import { NextResponse } from "next/server";
 import { createClient }  from "@supabase/supabase-js";
-import { generarHTMLHojaRuta } from "@/lib/hojaRuta";
+import { generarHTMLHojaRuta } from "@/lib/hojaruta";
 
 const db = () =>
   createClient(
@@ -48,7 +48,7 @@ export async function GET(req, { params }) {
     };
 
     // ── Generar HTML con lib/hojaRuta.js ─────────────────────
-    const html = generarHTMLHojaRuta(viaje, titular);
+    const html = generarHTMLHojaruta(viaje, titular);
 
     return new NextResponse(html, {
       status: 200,
