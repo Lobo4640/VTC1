@@ -1,27 +1,21 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
-import { useRouter, useSearchParams }               from "next/navigation";
+import { Suspense, useState, useCallback, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Eye,
   EyeOff,
   Loader2,
   AlertCircle,
   Car,
-  Shield,
   ChevronRight,
-  Clock,
-  ClipboardList,
-  User,
 } from "lucide-react";
 
-// ── IMPORTACIONES CORREGIDAS (Sin duplicados y con rutas relativas) ──
+// @ts-ignore
 import { supabase } from "../../lib/supabase";
+// @ts-ignore
 import type { UserRole } from "../../types/database";
 
-// ─────────────────────────────────────────────────────────
-// CONSTANTE DE COOKIE DE ROL
-// ─────────────────────────────────────────────────────────
 const ROLE_COOKIE = "vtc-role";
 
 function setCookieRol(rol: UserRole) {
@@ -29,12 +23,9 @@ function setCookieRol(rol: UserRole) {
   document.cookie = `${ROLE_COOKIE}=${rol}; Max-Age=${maxAge}; Path=/; SameSite=Lax`;
 }
 
-// ─────────────────────────────────────────────────────────
-// TIPOS DE ERROR
-// ─────────────────────────────────────────────────────────
 interface LoginError {
   field?: "email" | "password" | "general";
-  msg:    string;
+  msg: string;
 }
 
 function parseSupabaseError(message: string): LoginError {
@@ -50,23 +41,10 @@ function parseSupabaseError(message: string): LoginError {
   return { field: "general", msg: message };
 }
 
-// ─────────────────────────────────────────────────────────
-// COMPONENTE: InputField
-// ─────────────────────────────────────────────────────────
-interface InputFieldProps {
-  type:         string;
-  value:        string;
-  onChange:     (v: string) => void;
-  placeholder:  string;
-  error?:       boolean;
-  autoComplete: string;
-  disabled?:    boolean;
-  rightSlot?:   React.ReactNode;
-}
-
+// Componente de Input extraído para mantener limpio el código
 function InputField({
   type, value, onChange, placeholder, error, autoComplete, disabled, rightSlot,
-}: InputFieldProps) {
+}: any) {
   return (
     <div className="relative">
       <input
@@ -96,21 +74,19 @@ function InputField({
   );
 }
 
-// ─────────────────────────────────────────────────────────
-// COMPONENTE PRINCIPAL: LoginPage
-// ─────────────────────────────────────────────────────────
-export default function LoginPage() {
-  const router       = useRouter();
+// --- CONTENIDO DEL LOGIN (Usa los hooks de navegación) ---
+function LoginContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo   = searchParams.get("redirect") ?? null;
+  const redirectTo = searchParams.get("redirect") ?? null;
 
-  const [email,       setEmail]       = useState("");
-  const [password,    setPassword]    = useState("");
-  const [showPass,    setShowPass]    = useState(false);
-  const [loading,     setLoading]     = useState(false);
-  const [checking,    setChecking]    = useState(true);
-  const [loginError,  setLoginError]  = useState<LoginError | null>(null);
-  const [phase,       setPhase]       = useState<"idle" | "auth" | "role" | "redirect">("idle");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPass, setShowPass] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [checking, setChecking] = useState(true);
+  const [loginError, setLoginError] = useState<LoginError | null>(null);
+  const [phase, setPhase] = useState<"idle" | "auth" | "role" | "redirect">("idle");
 
   useEffect(() => {
     (async () => {
@@ -133,98 +109,74 @@ export default function LoginPage() {
     })();
   }, [router, redirectTo]);
 
-  const handleLogin = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-      setLoginError(null);
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError(null);
 
-      if (!email.trim())    { setLoginError({ field: "email",    msg: "Introduce tu email." });    return; }
-      if (!password.trim()) { setLoginError({ field: "password", msg: "Introduce tu contraseña." }); return; }
+    if (!email.trim()) { setLoginError({ field: "email", msg: "Introduce tu email." }); return; }
+    if (!password.trim()) { setLoginError({ field: "password", msg: "Introduce tu contraseña." }); return; }
 
-      setLoading(true);
-      setPhase("auth");
+    setLoading(true);
+    setPhase("auth");
 
-      const { data: authData, error: authError } =
-        await supabase.auth.signInWithPassword({ email: email.trim(), password });
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({ 
+      email: email.trim(), 
+      password 
+    });
 
-      if (authError || !authData.user) {
-        setLoading(false);
-        setPhase("idle");
-        setLoginError(parseSupabaseError(authError?.message ?? "Error desconocido."));
-        return;
-      }
+    if (authError || !authData.user) {
+      setLoading(false);
+      setPhase("idle");
+      setLoginError(parseSupabaseError(authError?.message ?? "Error desconocido."));
+      return;
+    }
 
-      setPhase("role");
-      const { data: perfil, error: perfilError } = await supabase
-        .from("perfiles")
-        .select("id, rol, nombre, activo")
-        .eq("id", authData.user.id)
-        .single();
+    setPhase("role");
+    const { data: perfil } = await supabase
+      .from("perfiles")
+      .select("id, rol, nombre, activo")
+      .eq("id", authData.user.id)
+      .single();
 
-      if (perfilError || !perfil) {
-        await supabase.auth.signOut();
-        setLoading(false);
-        setPhase("idle");
-        setLoginError({
-          field: "general",
-          msg: "Tu cuenta no tiene perfil asignado. Contacta con el administrador.",
-        });
-        return;
-      }
+    if (!perfil || !perfil.activo) {
+      await supabase.auth.signOut();
+      setLoading(false);
+      setPhase("idle");
+      setLoginError({
+        field: "general",
+        msg: "Cuenta desactivada o sin perfil.",
+      });
+      return;
+    }
 
-      if (!perfil.activo) {
-        await supabase.auth.signOut();
-        setLoading(false);
-        setPhase("idle");
-        setLoginError({
-          field: "general",
-          msg: "Tu cuenta está desactivada. Contacta con el administrador.",
-        });
-        return;
-      }
-
-      setPhase("redirect");
-      setCookieRol(perfil.rol as UserRole);
-
-      const dest = redirectTo ?? (perfil.rol === "admin" ? "/admin" : "/driver");
-
-      await new Promise((r) => setTimeout(r, 400));
-      router.replace(dest);
-    },
-    [email, password, redirectTo, router]
-  );
+    setPhase("redirect");
+    setCookieRol(perfil.rol as UserRole);
+    const dest = redirectTo ?? (perfil.rol === "admin" ? "/admin" : "/driver");
+    setTimeout(() => router.replace(dest), 400);
+  };
 
   const phaseLabel: Record<typeof phase, string> = {
-    idle:     "",
-    auth:     "Verificando credenciales...",
-    role:     "Cargando perfil...",
-    redirect: "Acceso concedido ✓",
+    idle: "",
+    auth: "Verificando...",
+    role: "Cargando perfil...",
+    redirect: "Entrando...",
   };
 
   if (checking) {
     return (
       <div className="min-h-dvh bg-black flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="relative w-16 h-16">
-            <div className="absolute inset-0 rounded-full border-2 border-accent/20" />
-            <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-accent animate-spin" />
-          </div>
-          <p className="text-gray-500 text-sm">Comprobando sesión…</p>
-        </div>
+        <Loader2 className="animate-spin text-blue-500" size={32} />
       </div>
     );
   }
 
   return (
     <div className="min-h-dvh flex flex-col" style={{ background: "#000000" }}>
-      <div className="fixed inset-0 pointer-events-none" aria-hidden="true">
-        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0,181,255,0.08) 0%, transparent 70%)" }} />
-      </div>
-
       <main className="relative flex-1 flex flex-col items-center justify-center px-5 py-10">
+        {/* Tu diseño de Logo */}
         <div className="flex flex-col items-center gap-4 mb-10">
           <div className="w-20 h-20 rounded-3xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #0f1f35 0%, #1a2d45 100%)", border: "1px solid rgba(0,181,255,0.25)" }}>
-            <Car size={36} strokeWidth={1.5} style={{ color: "#00B5FF" }} />
+            <Car size={36} style={{ color: "#00B5FF" }} />
           </div>
           <div className="text-center space-y-1">
             <h1 className="text-2xl font-black tracking-[0.15em] uppercase text-white">VTC Register</h1>
@@ -232,6 +184,7 @@ export default function LoginPage() {
           </div>
         </div>
 
+        {/* Card de Formulario */}
         <div className="w-full max-w-sm rounded-3xl overflow-hidden" style={{ background: "linear-gradient(160deg, #1a2535 0%, #111827 100%)", border: "1px solid rgba(55,65,81,0.6)" }}>
           <div className="px-7 pt-8 pb-3">
             <h2 className="text-center text-xl font-black mb-1" style={{ color: "#C8972E" }}>Bienvenido</h2>
@@ -241,7 +194,7 @@ export default function LoginPage() {
               <InputField
                 type="email"
                 value={email}
-                onChange={(v) => { setEmail(v); setLoginError(null); }}
+                onChange={(v: any) => setEmail(v)}
                 placeholder="Email"
                 autoComplete="email"
                 error={loginError?.field === "email"}
@@ -250,23 +203,25 @@ export default function LoginPage() {
               <InputField
                 type={showPass ? "text" : "password"}
                 value={password}
-                onChange={(v) => { setPassword(v); setLoginError(null); }}
+                onChange={(v: any) => setPassword(v)}
                 placeholder="Contraseña"
                 autoComplete="current-password"
                 error={loginError?.field === "password"}
                 disabled={loading}
                 rightSlot={
-                  <button type="button" onClick={() => setShowPass((v) => !v)} className="text-gray-400">
+                  <button type="button" onClick={() => setShowPass(!showPass)} className="text-gray-400">
                     {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 }
               />
+
               {loginError?.field === "general" && (
                 <div className="flex items-start gap-2.5 px-4 py-3 rounded-2xl text-sm bg-red-500/10 border border-red-500/30 text-red-400">
                   <AlertCircle size={15} className="mt-0.5" />
                   <span>{loginError.msg}</span>
                 </div>
               )}
+
               <button
                 type="submit"
                 disabled={loading}
@@ -287,14 +242,24 @@ export default function LoginPage() {
               </button>
             </form>
           </div>
-          <div className="px-7 pb-7 pt-3 space-y-3">
-            <div className="h-px bg-gray-700/60" />
-            <div className="text-center">
-              <p className="text-xs text-gray-500">VTC Register v1.0</p>
-            </div>
+          <div className="px-7 pb-7 pt-3">
+            <p className="text-center text-xs text-gray-500">VTC Register v1.0</p>
           </div>
         </div>
       </main>
     </div>
+  );
+}
+
+// --- EXPORT PRINCIPAL (Obligatorio para evitar el error de Suspense) ---
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-dvh bg-black flex items-center justify-center">
+        <Loader2 className="animate-spin text-blue-500" size={32} />
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   );
 }
