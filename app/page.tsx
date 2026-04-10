@@ -1,24 +1,26 @@
-// app/page.tsx
-import { redirect } from "next/navigation";
-import { getPerfilActual } from "../lib/supabase-server";
+"use client";
 
-export default async function RootPage() {
-  // Obtenemos el perfil
-  const perfil = await getPerfilActual();
+import { Suspense, useState, useCallback, useEffect, useRef } from "react";
+// ... (todos tus otros imports de lucide-react y supabase) ...
 
-  // 1. Si no hay perfil, redirigimos al login
-  if (!perfil) {
-    redirect("/login");
-    return; // Añadimos return para asegurar que TS no siga evaluando
-  }
+// 1. Cambia el nombre de tu función principal de LoginPage a LoginContent
+function LoginContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams(); // <--- Esto es lo que causaba el error
+  const redirectTo = searchParams.get("redirect") ?? null;
+  
+  // ... (Pega AQUÍ todo el resto de tu lógica actual: useState, useEffect, handleLogin, el return del HTML, etc.) ...
+}
 
-  // 2. Aquí forzamos a TS a entender que perfil tiene 'rol'
-  // Usamos 'any' momentáneamente para saltar el bloqueo de compilación
-  const userRole = (perfil as any).rol;
-
-  if (userRole === "admin") {
-    redirect("/admin");
-  } else {
-    redirect("/driver");
-  }
+// 2. Crea el nuevo export principal que envuelve todo en Suspense
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-dvh bg-black flex items-center justify-center">
+        <Loader2 className="animate-spin text-accent" size={32} />
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
+  );
 }
