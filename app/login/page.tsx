@@ -1,7 +1,7 @@
 "use client";
 
-import { supabase } from "@/lib/supabase";
-import type { UserRole } from "@/types/database";
+import { supabase } from "../../lib/supabase";
+import type { UserRole } from "../../types/database";
 import {
   Eye,
   EyeOff,
