@@ -1,28 +1,27 @@
 // app/page.tsx — Punto de entrada raíz
-// El middleware intercepta esta ruta y redirige según sesión:
-//   • Sin sesión  → /login
-//   • Conductor   → /driver
-//   • Admin       → /admin
-//
-// Este componente solo se ejecuta si el middleware deja pasar
-// al usuario (sesión válida sin cookie de rol aún establecida).
-
 import { redirect } from "next/navigation";
-import { getPerfilActual } from "@/lib/supabase-server";
+// Cambiamos @/ por ../ para que Next.js encuentre el archivo sin errores
+import { getPerfilActual } from "../lib/supabase-server";
 
 export default async function RootPage() {
+  // Obtenemos el perfil usando el cliente de servidor optimizado
   const perfil = await getPerfilActual();
 
-  // Sin perfil → el middleware debería haber redirigido, pero
-  // como salvaguarda adicional redirigimos aquí también.
+  // 1. Si no hay sesión o perfil, mandamos al login
   if (!perfil) {
     redirect("/login");
   }
 
-  // Redirigir según rol
+  // 2. Si la cuenta existe pero no está activa (seguridad extra)
+  if (perfil.activo === false) {
+    redirect("/login?error=cuenta_desactivada");
+  }
+
+  // 3. Redirigir según el rol definido en la base de datos
   if (perfil.rol === "admin") {
     redirect("/admin");
   }
 
+  // Por defecto, si no es admin, es conductor
   redirect("/driver");
 }
