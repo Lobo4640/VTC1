@@ -12,4 +12,11 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 // Creamos el cliente de forma sencilla para que Vercel no de errores de tipos
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Sustituye la última línea por esto:
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true
+  }
+});
