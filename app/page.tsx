@@ -1,42 +1,37 @@
-"use client";
+// app/page.tsx — Punto de entrada raíz (Server Component)
+import { redirect } from "next/navigation";
+import { getPerfilActual } from "../lib/supabase-server";
 
-import { Suspense, useState, useCallback, useEffect, useRef } from "react";
-// IMPORTANTE: Asegúrate de que useRouter y useSearchParams estén aquí:
-import { useRouter, useSearchParams } from "next/navigation"; 
-import {
-  Eye,
-  EyeOff,
-  Loader2,
-  AlertCircle,
-  Car,
-  Shield,
-  ChevronRight,
-  Clock,
-  ClipboardList,
-  User,
-} from "lucide-react";
+/**
+ * Esta página actúa como un "enrutador inteligente".
+ * El flujo es:
+ * 1. Intenta obtener el perfil del usuario desde el servidor.
+ * 2. Si no hay sesión, manda a /login.
+ * 3. Si hay sesión, mira el rol y redirige al panel correspondiente.
+ */
+export default async function RootPage() {
+  // Obtenemos el perfil usando el cliente de servidor
+  const perfil = await getPerfilActual();
 
-import { supabase } from "../../lib/supabase";
-import type { UserRole } from "../../types/database";
+  // 1. Si no hay sesión o no existe el perfil, redirigimos al login
+  if (!perfil) {
+    redirect("/login");
+  }
 
-// ... (Resto de funciones: ROLE_COOKIE, setCookieRol, etc.) ...
+  // 2. Verificamos si la cuenta está activa (Seguridad extra)
+  // Usamos (perfil as any) para evitar errores de tipos en el build de Vercel
+  if ((perfil as any).activo === false) {
+    redirect("/login?error=cuenta_desactivada");
+  }
 
-function LoginContent() {
-  const router = useRouter(); // Ahora sí lo encontrará
-  const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirect") ?? null;
+  // 3. Redirigir según el rol
+  const role = (perfil as any).rol;
 
-  // ... (Aquí sigue todo el código de tu formulario que ya tenías)
-}
-
-export default function LoginPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-dvh bg-black flex items-center justify-center">
-        <Loader2 className="animate-spin text-[#00B5FF]" size={32} />
-      </div>
-    }>
-      <LoginContent />
-    </Suspense>
-  );
+  if (role === "admin") {
+    // Si es administrador, lo enviamos a su panel de control
+    redirect("/admin");
+  } else {
+    // Por defecto (conductores), los enviamos a la app de gestión de viajes
+    redirect("/driver");
+  }
 }
