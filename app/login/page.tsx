@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
-import { useRouter, useSearchParams }               from "next/navigation";
+import { supabase } from "@/lib/supabase";
+import type { UserRole } from "@/types/database";
 import {
   Eye,
   EyeOff,
