@@ -2,8 +2,8 @@
 
 import { Suspense, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link"; // Corrección: Importación de Link añadida
-import { Eye, EyeOff, Loader2, AlertCircle, Car, ChevronRight, Key } from "lucide-center";
+import Link from "next/link"; 
+import { Eye, EyeOff, Loader2, AlertCircle, Car, ChevronRight, Key } from "lucide-react"; // <--- CORREGIDO: lucide-react
 import { supabase } from "../../lib/supabase";
 
 export default function LoginPage() {
