@@ -1,23 +1,22 @@
 import { redirect } from "next/navigation";
 import { getPerfilActual } from "../lib/supabase-server";
 import Link from "next/link";
-import { Car, Navigation, Shield, Star, Clock } from "lucide-react";
+import { Car, Navigation, Shield, Star, Clock, MapPin } from "lucide-react"; // Corrección: MapPin añadido aquí
 
 export default async function RootPage() {
   const perfil = await getPerfilActual();
 
-  // Si ya está logueado, lo mandamos a su panel
+  // Si ya está logueado, lo mandamos a su panel correspondiente
   if (perfil) {
     const role = (perfil as any).rol;
     if (role === "admin") redirect("/admin");
     if (role === "driver") redirect("/driver");
   }
 
-  // Si NO está logueado, mostramos la interfaz de reserva para clientes
   return (
     <div className="min-h-dvh bg-oled text-white font-sans">
-      {/* Header Simple */}
-      <header className="p-6 flex justify-between items-center border-b border-border/30">
+      {/* Header */}
+      <header className="p-6 flex justify-between items-center border-b border-border/30 bg-black/50 backdrop-blur-md sticky top-0 z-50">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-gold rounded-lg flex items-center justify-center">
             <Car size={18} className="text-black" />
@@ -36,7 +35,7 @@ export default async function RootPage() {
         </section>
 
         {/* Formulario de Reserva Rápida */}
-        <div className="vtc-card p-6 space-y-4 border-gold/20">
+        <div className="vtc-card p-6 space-y-4 border-gold/20 shadow-2xl shadow-gold/5">
           <div className="space-y-3">
             <div className="relative">
               <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gold" size={18} />
@@ -48,7 +47,7 @@ export default async function RootPage() {
             </div>
           </div>
 
-          <button className="w-full py-5 bg-gold text-black font-black rounded-2xl flex items-center justify-center gap-3 hover:scale-[1.02] transition-transform">
+          <button className="w-full py-5 bg-gold text-black font-black rounded-2xl flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all">
             CALCULAR PRECIO FINAL
           </button>
         </div>
@@ -56,28 +55,23 @@ export default async function RootPage() {
         {/* Beneficios */}
         <div className="grid grid-cols-3 gap-4 text-center">
           <div className="space-y-2">
-            <div className="mx-auto w-10 h-10 rounded-full bg-surface flex items-center justify-center"><Shield size={16} className="text-gold"/></div>
-            <p className="text-[9px] font-bold uppercase">Seguro</p>
+            <div className="mx-auto w-10 h-10 rounded-full bg-surface flex items-center justify-center border border-white/5"><Shield size={16} className="text-gold"/></div>
+            <p className="text-[9px] font-bold uppercase tracking-wider text-text-dim">Seguro</p>
           </div>
           <div className="space-y-2">
-            <div className="mx-auto w-10 h-10 rounded-full bg-surface flex items-center justify-center"><Star size={16} className="text-gold"/></div>
-            <p className="text-[9px] font-bold uppercase">Premium</p>
+            <div className="mx-auto w-10 h-10 rounded-full bg-surface flex items-center justify-center border border-white/5"><Star size={16} className="text-gold"/></div>
+            <p className="text-[9px] font-bold uppercase tracking-wider text-text-dim">Premium</p>
           </div>
           <div className="space-y-2">
-            <div className="mx-auto w-10 h-10 rounded-full bg-surface flex items-center justify-center"><Clock size={16} className="text-gold"/></div>
-            <p className="text-[9px] font-bold uppercase">24/7</p>
+            <div className="mx-auto w-10 h-10 rounded-full bg-surface flex items-center justify-center border border-white/5"><Clock size={16} className="text-gold"/></div>
+            <p className="text-[9px] font-bold uppercase tracking-wider text-text-dim">24/7</p>
           </div>
         </div>
       </main>
 
-      <footer className="p-10 text-center text-[10px] text-text-dim uppercase tracking-widest">
-        &copy; 2024 TaxMad VTC — Madrid, España
+      <footer className="p-10 text-center text-[10px] text-text-dim uppercase tracking-widest border-t border-border/10">
+        &copy; {new Date().getFullYear()} TaxMad VTC — Madrid, España
       </footer>
     </div>
   );
-}
-
-// Iconos que faltaban
-function MapPin(props: any) {
-  return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
 }
