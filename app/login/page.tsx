@@ -1,8 +1,9 @@
 "use client";
 
-import { Suspense, useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Eye, EyeOff, Loader2, AlertCircle, Car, ChevronRight, Key } from "lucide-react";
+import { Suspense, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link"; // Corrección: Importación de Link añadida
+import { Eye, EyeOff, Loader2, AlertCircle, Car, ChevronRight, Key } from "lucide-center";
 import { supabase } from "../../lib/supabase";
 
 export default function LoginPage() {
@@ -21,7 +22,6 @@ function LoginContent() {
   const [loading, setLoading] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
 
-  // --- FUNCIÓN RECUPERAR CONTRASEÑA ---
   const handleResetPassword = async () => {
     if (!email) {
       setLoginError("Introduce tu email para recuperar la contraseña.");
@@ -47,7 +47,6 @@ function LoginContent() {
       return;
     }
 
-    // Redirigir según rol
     const { data: perfil } = await supabase.from("perfiles").select("rol").eq("id", data.user.id).single();
     if (perfil?.rol === "admin") router.push("/admin");
     else router.push("/driver");
